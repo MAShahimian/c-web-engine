@@ -59,6 +59,26 @@ int main(void) {
 
     printf("Client connected!\n");
 
+    char buffer[1024];
+
+    int bytes_received = recv(
+        client_socket,
+        buffer,
+        sizeof(buffer) - 1,
+        0
+    );
+
+    if (bytes_received == -1) {
+        perror("recv");
+        close(client_socket);
+        close(server_socket);
+        return 1;
+    }
+
+    buffer[bytes_received] = '\0';
+
+    printf("Received: %s\n", buffer);
+
     close(client_socket);
     close(server_socket);
 
