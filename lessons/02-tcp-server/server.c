@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <string.h>
 
 int main(void) {
     int server_socket;
@@ -78,6 +79,24 @@ int main(void) {
     buffer[bytes_received] = '\0';
 
     printf("Received: %s\n", buffer);
+
+    const char *response = "Hello from C Server!";
+
+    int bytes_sent = send(
+        client_socket,
+        response,
+        strlen(response),
+        0
+    );
+
+    if (bytes_sent == -1) {
+        perror("send");
+        close(client_socket);
+        close(server_socket);
+        return 1;
+    }
+
+    printf("Sent: %d bytes\n", bytes_sent);
 
     close(client_socket);
     close(server_socket);
