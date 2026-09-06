@@ -14,6 +14,16 @@ int main(void) {
         return 1;
     }
 
+    int opt = 1;
+
+    setsockopt(
+        server_socket,
+        SOL_SOCKET,
+        SO_REUSEADDR,
+        &opt,
+        sizeof(opt)
+    );
+
     printf("Socket FD: %d\n", server_socket);
 
     struct sockaddr_in server_address;
@@ -62,25 +72,27 @@ int main(void) {
 
     char buffer[1024];
 
-    int bytes_received = recv(
-        client_socket,
-        buffer,
-        sizeof(buffer) - 1,
-        0
-    );
+    while(1){
+        int bytes_received = recv(
+            client_socket,
+            buffer,
+            sizeof(buffer) - 1,
+            0
+        );
 
-    if (bytes_received == -1) {
-        perror("recv");
-        close(client_socket);
-        close(server_socket);
-        return 1;
+        if (bytes_received == -1) {
+            perror("recv");
+            close(client_socket);
+            close(server_socket);
+            return 1;
+        }
+
+        buffer[bytes_received] = '\0';
+
+        printf("Received:\n%s\n", buffer);
     }
 
-    buffer[bytes_received] = '\0';
-
-    printf("Received: %s\n", buffer);
-
-    const char *response = "Hello from C Server!";
+    /* const char *response = "Hello from C Server!";
 
     int bytes_sent = send(
         client_socket,
@@ -96,7 +108,7 @@ int main(void) {
         return 1;
     }
 
-    printf("Sent: %d bytes\n", bytes_sent);
+    printf("Sent: %d bytes\n", bytes_sent); */
 
     close(client_socket);
     close(server_socket);
