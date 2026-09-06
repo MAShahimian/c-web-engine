@@ -35,6 +35,31 @@ int main(void) {
 
     printf("Server bound to port 8080\n");
 
+    result = listen(server_socket, 5);
+
+    if (result == -1) {
+        perror("listen");
+        close(server_socket);
+        return 1;
+    }
+
+    printf("Server is listening on port 8080\n");
+
+    int client_socket = accept(
+        server_socket,
+        NULL,
+        NULL
+    );
+
+    if (client_socket == -1) {
+        perror("accept");
+        close(server_socket);
+        return 1;
+    }
+
+    printf("Client connected!\n");
+
+    close(client_socket);
     close(server_socket);
 
     return 0;
