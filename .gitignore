@@ -54,5 +54,6 @@ dkms.conf
 # debug information files
 *.dwo
 
-server
-hello
+c-web-engine
+lessons/02-tcp-server/server
+lessons/01-hello-c/hello
