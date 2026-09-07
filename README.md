@@ -21,3 +21,15 @@ networking, HTTP, web architecture, and JavaScript from first principles.
 ## Learning Approach
 
 Learn → Experiment → Implement → Document → Refactor
+
+## Testing
+
+C Web Engine includes both unit tests and HTTP integration tests.
+
+Run the complete test suite with:
+
+```bash
+make test
+```
+For more information about the testing architecture and test structure, see:
+[docs/testing.md](docs/testing.md)
