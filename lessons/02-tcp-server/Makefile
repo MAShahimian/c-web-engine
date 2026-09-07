@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -std=c11
 
 TARGET = server
 
-SOURCES = server.c http/http.c
+SOURCES = server.c http/http.c router/router.c
 
 $(TARGET): $(SOURCES)
 	@printf "\n"

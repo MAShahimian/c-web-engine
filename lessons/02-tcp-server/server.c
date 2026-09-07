@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "http/http.h"
+#include "router/router.h"
 
 int main(void) {
     int server_socket;
@@ -104,7 +105,7 @@ int main(void) {
             printf("Path: %s\n", request.path);
             printf("Version: %s\n", request.version);
 
-            http_handle_request(client_socket, &request);
+            router_handle_request(client_socket, &request);
 
             break;
         } else {

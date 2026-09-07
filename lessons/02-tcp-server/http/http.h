@@ -19,6 +19,4 @@ int http_parse_request(const char *buffer, HttpRequest *request);
 
 void http_send_response(int client_socket);
 
-void http_handle_request(int client_socket, HttpRequest *request);
-
 #endif
