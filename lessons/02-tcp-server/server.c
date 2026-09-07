@@ -104,7 +104,7 @@ int main(void) {
             printf("Path: %s\n", request.path);
             printf("Version: %s\n", request.version);
 
-            http_send_response(client_socket);
+            http_handle_request(client_socket, &request);
 
             break;
         } else {
