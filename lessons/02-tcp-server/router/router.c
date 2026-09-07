@@ -28,23 +28,40 @@ static void handle_about(int client_socket) {
 }
 
 typedef struct {
+    const char *method;
     const char *path;
     HttpHandler handler;
 } Route;
 
 static Route routes[] = {
-    {"/hello", handle_hello},
-    {"/about", handle_about}
+    {"GET", "/hello", handle_hello},
+    {"GET", "/about", handle_about}
 };
 
 void router_handle_request(int client_socket, HttpRequest *request) {
     int route_count = sizeof(routes) / sizeof(routes[0]);
+    int path_found = 0;
 
     for (int i = 0; i < route_count; i++) {
         if (strcmp(request->path, routes[i].path) == 0) {
-            routes[i].handler(client_socket);
-            return;
+            path_found = 1;
+
+            if (strcmp(request->method, routes[i].method) == 0) {
+                routes[i].handler(client_socket);
+                return;
+            }
         }
+    }
+
+    if (path_found) {
+        http_send_text_response(
+            client_socket,
+            405,
+            "Method Not Allowed",
+            "Method Not Allowed\n"
+        );
+
+        return;
     }
 
     http_send_text_response(
