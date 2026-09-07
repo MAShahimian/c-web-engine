@@ -32,6 +32,10 @@ The test runner automatically:
 A successful test run should look like:
 
 ```bash
+make test
+
+[PASS] Parse GET /hello HTTP/1.1
+[PASS] Reject invalid HTTP request
 ========================================
        C Web Engine - Server Tests
 ========================================
