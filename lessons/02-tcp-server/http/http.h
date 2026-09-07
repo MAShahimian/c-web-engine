@@ -17,6 +17,11 @@ typedef void (*HttpHandler)(int client_socket);
 
 int http_parse_request(const char *buffer, HttpRequest *request);
 
-void http_send_response(int client_socket);
+void http_send_text_response(
+    int client_socket,
+    int status_code,
+    const char *status_text,
+    const char *body
+);
 
 #endif

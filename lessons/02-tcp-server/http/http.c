@@ -21,20 +21,25 @@ int http_parse_request(const char *buffer, HttpRequest *request) {
     return parsed == 3;
 }
 
-void http_send_response(int client_socket) {
-    const char *body = "Hello from C Server!\n";
-
+void http_send_text_response(
+    int client_socket,
+    int status_code,
+    const char *status_text,
+    const char *body
+) {
     char response[1024];
 
     int response_length = snprintf(
         response,
         sizeof(response),
-        "HTTP/1.1 200 OK\r\n"
+        "HTTP/1.1 %d %s\r\n"
         "Content-Type: text/plain\r\n"
         "Content-Length: %zu\r\n"
         "Connection: close\r\n"
         "\r\n"
         "%s",
+        status_code,
+        status_text,
         strlen(body),
         body
     );

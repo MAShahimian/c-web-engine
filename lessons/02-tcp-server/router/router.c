@@ -4,40 +4,26 @@
  * Module: HTTP Router
  * Description: Handles HTTP request routing and dispatches requests to handlers.
  */
- 
+
 #include "router.h"
 
-#include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
 
 static void handle_hello(int client_socket) {
-    http_send_response(client_socket);
+    http_send_text_response(
+        client_socket,
+        200,
+        "OK",
+        "Hello from C Server!\n"
+    );
 }
 
 static void handle_about(int client_socket) {
-    const char *body = "C Web Engine\n";
-
-    char response[1024];
-
-    int response_length = snprintf(
-        response,
-        sizeof(response),
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: %zu\r\n"
-        "Connection: close\r\n"
-        "\r\n"
-        "%s",
-        strlen(body),
-        body
-    );
-
-    send(
+    http_send_text_response(
         client_socket,
-        response,
-        response_length,
-        0
+        200,
+        "OK",
+        "C Web Engine\n"
     );
 }
 
@@ -61,27 +47,10 @@ void router_handle_request(int client_socket, HttpRequest *request) {
         }
     }
 
-    const char *body = "Not Found\n";
-
-    char response[1024];
-
-    int response_length = snprintf(
-        response,
-        sizeof(response),
-        "HTTP/1.1 404 Not Found\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: %zu\r\n"
-        "Connection: close\r\n"
-        "\r\n"
-        "%s",
-        strlen(body),
-        body
-    );
-
-    send(
+    http_send_text_response(
         client_socket,
-        response,
-        response_length,
-        0
+        404,
+        "Not Found",
+        "Not Found\n"
     );
 }
