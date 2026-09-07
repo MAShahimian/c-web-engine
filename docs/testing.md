@@ -32,15 +32,27 @@ The test runner automatically:
 A successful test run should look like:
 
 ```bash
+========================================
+       C Web Engine - Server Tests
+========================================
+
+Starting server...
+Server PID: ****
+Waiting for server...
+Server is ready.
+[PASS] GET /health
 [PASS] GET /hello
 [PASS] GET /about
 [PASS] GET unknown route
 [PASS] POST /hello
 
-Passed: 4
+========================================
+Passed: 5
 Failed: 0
-
+========================================
 All tests passed.
+
+Stopping server...
 ```
 
 ## Test Structure

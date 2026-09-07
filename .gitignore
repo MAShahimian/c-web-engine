@@ -57,3 +57,4 @@ dkms.conf
 c-web-engine
 lessons/02-tcp-server/server
 lessons/01-hello-c/hello
+tests/test_http_parser
