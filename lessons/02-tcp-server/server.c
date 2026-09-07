@@ -4,6 +4,12 @@
 #include <unistd.h>
 #include <string.h>
 
+typedef struct {
+    char method[16];
+    char path[256];
+    char version[16];
+} HttpRequest;
+
 int main(void) {
     int server_socket;
 
@@ -89,7 +95,23 @@ int main(void) {
 
         buffer[bytes_received] = '\0';
 
-        printf("Received:\n%s\n", buffer);
+        HttpRequest request;
+
+        int parsed = sscanf(
+            buffer,
+            "%15s %255s %15s",
+            request.method,
+            request.path,
+            request.version
+        );
+
+        if (parsed == 3) {
+            printf("Method: %s\n", request.method);
+            printf("Path: %s\n", request.path);
+            printf("Version: %s\n", request.version);
+        } else {
+            printf("Invalid HTTP request\n");
+        }
     }
 
     /* const char *response = "Hello from C Server!";
