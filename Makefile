@@ -11,7 +11,7 @@ SOURCES = \
 
 OBJECTS = $(SOURCES:.c=.o)
 
-.PHONY: all clean banner
+.PHONY: all clean banner test
 
 all: banner $(TARGET)
 	@echo ""
@@ -39,3 +39,6 @@ $(TARGET): $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS) $(TARGET)
+
+test: $(TARGET)
+	@./tests/test_server.sh

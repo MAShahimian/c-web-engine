@@ -27,6 +27,15 @@ static void handle_about(int client_socket) {
     );
 }
 
+static void handle_health(int client_socket) {
+    http_send_text_response(
+        client_socket,
+        200,
+        "OK",
+        "OK\n"
+    );
+}
+
 typedef struct {
     const char *method;
     const char *path;
@@ -35,7 +44,8 @@ typedef struct {
 
 static Route routes[] = {
     {"GET", "/hello", handle_hello},
-    {"GET", "/about", handle_about}
+    {"GET", "/about", handle_about},
+    {"GET", "/health", handle_health}
 };
 
 void router_handle_request(int client_socket, HttpRequest *request) {

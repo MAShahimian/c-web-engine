@@ -65,23 +65,22 @@ int main(void) {
 
     printf("Server is listening on port 8080\n");
 
-    int client_socket = accept(
-        server_socket,
-        NULL,
-        NULL
-    );
+    while (1) {
+        int client_socket = accept(
+            server_socket,
+            NULL,
+            NULL
+        );
 
-    if (client_socket == -1) {
-        perror("accept");
-        close(server_socket);
-        return 1;
-    }
+        if (client_socket == -1) {
+            perror("accept");
+            continue;
+        }
 
-    printf("Client connected!\n");
+        printf("Client connected!\n");
 
-    char buffer[1024];
+        char buffer[1024];
 
-    while(1){
         int bytes_received = recv(
             client_socket,
             buffer,
@@ -92,8 +91,12 @@ int main(void) {
         if (bytes_received == -1) {
             perror("recv");
             close(client_socket);
-            close(server_socket);
-            return 1;
+            continue;
+        }
+
+        if (bytes_received == 0) {
+            close(client_socket);
+            continue;
         }
 
         buffer[bytes_received] = '\0';
@@ -101,21 +104,19 @@ int main(void) {
         HttpRequest request;
 
         if (http_parse_request(buffer, &request)) {
-            printf("Method: %s\n", request.method);
-            printf("Path: %s\n", request.path);
-            printf("Version: %s\n", request.version);
-
             router_handle_request(client_socket, &request);
-
-            break;
         } else {
-            printf("Invalid HTTP request\n");
-            break;
+            http_send_text_response(
+                client_socket,
+                400,
+                "Bad Request",
+                "Bad Request\n"
+            );
         }
 
+        close(client_socket);
     }
 
-    close(client_socket);
     close(server_socket);
 
     return 0;

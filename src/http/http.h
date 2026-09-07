@@ -17,6 +17,18 @@ typedef void (*HttpHandler)(int client_socket);
 
 int http_parse_request(const char *buffer, HttpRequest *request);
 
+typedef struct {
+    int status_code;
+    const char *status_text;
+    const char *content_type;
+    const char *body;
+} HttpResponse;
+
+void http_send_response(
+    int client_socket,
+    HttpResponse *response
+);
+
 void http_send_text_response(
     int client_socket,
     int status_code,
