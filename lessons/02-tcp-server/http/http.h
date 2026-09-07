@@ -13,6 +13,8 @@ typedef struct {
     char version[16];
 } HttpRequest;
 
+typedef void (*HttpHandler)(int client_socket);
+
 int http_parse_request(const char *buffer, HttpRequest *request);
 
 void http_send_response(int client_socket);
