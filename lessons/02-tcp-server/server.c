@@ -1,3 +1,9 @@
+/*
+ * Project: C Web Engine
+ * Author: Mohammad Ali Shahimian
+ * Description: Lightweight HTTP server built from scratch in C.
+ */
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -97,9 +103,15 @@ int main(void) {
             printf("Method: %s\n", request.method);
             printf("Path: %s\n", request.path);
             printf("Version: %s\n", request.version);
+
+            http_send_response(client_socket);
+
+            break;
         } else {
             printf("Invalid HTTP request\n");
+            break;
         }
+
     }
 
     close(client_socket);

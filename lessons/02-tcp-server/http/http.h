@@ -1,3 +1,9 @@
+/*
+ * Project: C Web Engine
+ * Author: Mohammad Ali Shahimian
+ * Description: HTTP data structures and public API.
+ */
+
 #ifndef HTTP_H
 #define HTTP_H
 
@@ -8,5 +14,7 @@ typedef struct {
 } HttpRequest;
 
 int http_parse_request(const char *buffer, HttpRequest *request);
+
+void http_send_response(int client_socket);
 
 #endif
