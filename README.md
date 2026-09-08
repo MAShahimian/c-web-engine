@@ -14,13 +14,26 @@ networking, HTTP, web architecture, and JavaScript from first principles.
 - Understand JavaScript and browser architecture
 - Compare low-level implementations with modern frameworks
 
-## Project Status
+## Prerequisites
 
-🚧 Research in progress
+C Web Engine requires:
 
-## Learning Approach
+- GCC
+- GNU Make
+- curl
 
-Learn → Experiment → Implement → Document → Refactor
+For Ubuntu/Debian/WSL, the required development tools can be installed automatically:
+
+```bash
+./scripts/setup.sh
+```
+
+After the environment is ready, build and test the project with:
+
+```bash
+make
+make test
+```
 
 ## Testing
 
