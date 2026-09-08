@@ -21,6 +21,9 @@ C Web Engine requires:
 - GCC
 - GNU Make
 - curl
+- ApacheBench
+
+ApacheBench is used for HTTP performance benchmarking.
 
 For Ubuntu/Debian/WSL, the required development tools can be installed automatically:
 

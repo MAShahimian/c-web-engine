@@ -35,6 +35,16 @@ else
     echo "curl: available"
 fi
 
+if ! command -v ab >/dev/null 2>&1; then
+    echo "ApacheBench not found."
+    echo "Installing ApacheBench..."
+
+    sudo apt update
+    sudo apt install -y apache2-utils
+else
+    echo "ApacheBench: available"
+fi
+
 echo ""
 echo "========================================"
 echo "Environment is ready."
