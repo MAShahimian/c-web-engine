@@ -10,6 +10,9 @@
 #include <string.h>
 
 int http_parse_request(const char *buffer, HttpRequest *request) {
+
+    request->header_count = 0;
+
     int parsed = sscanf(
         buffer,
         "%15s %255s %15s",
@@ -21,8 +24,6 @@ int http_parse_request(const char *buffer, HttpRequest *request) {
     if (parsed != 3) {
         return 0;
     }
-
-    request->header_count = 0;
 
     const char *line = strstr(buffer, "\r\n");
 
