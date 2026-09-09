@@ -45,4 +45,9 @@ void http_send_text_response(
     const char *body
 );
 
+const char *http_get_header(
+    HttpRequest *request,
+    const char *name
+);
+
 #endif

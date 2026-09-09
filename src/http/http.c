@@ -90,6 +90,19 @@ int http_parse_request(const char *buffer, HttpRequest *request) {
     return 1;
 }
 
+const char *http_get_header(
+    HttpRequest *request,
+    const char *name
+) {
+    for (int i = 0; i < request->header_count; i++) {
+        if (strcmp(request->headers[i].name, name) == 0) {
+            return request->headers[i].value;
+        }
+    }
+
+    return NULL;
+}
+
 void http_send_text_response(
     int client_socket,
     int status_code,

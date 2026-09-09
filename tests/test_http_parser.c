@@ -112,6 +112,30 @@ int main(void) {
 
     printf("[PASS] Parse headers with different spacing\n");    
 
+    const char *host = http_get_header(
+        &request,
+        "Host"
+    );
+
+    if (host == NULL || strcmp(host, "localhost") != 0) {
+        printf("[FAIL] Header lookup failed for Host\n");
+        return 1;
+    }
+
+    printf("[PASS] Lookup HTTP header by name\n");
+
+    const char *missing = http_get_header(
+        &request,
+        "Authorization"
+    );
+
+    if (missing != NULL) {
+        printf("[FAIL] Missing header should return NULL\n");
+        return 1;
+    }
+
+    printf("[PASS] Return NULL for missing HTTP header\n");    
+
     const char *invalid_input =
         "GET /hello\r\n";
 
