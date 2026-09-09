@@ -7,10 +7,19 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+#define MAX_HEADERS 16
+
+typedef struct {
+    char name[64];
+    char value[256];
+} HttpHeader;
+
 typedef struct {
     char method[16];
     char path[256];
     char version[16];
+    HttpHeader headers[MAX_HEADERS];
+    int header_count;
 } HttpRequest;
 
 typedef void (*HttpHandler)(int client_socket);

@@ -35,6 +35,23 @@ int main(void) {
 
     printf("[PASS] Parse GET /hello HTTP/1.1\n");
 
+    if (request.header_count != 1) {
+        printf("[FAIL] Header count mismatch\n");
+        return 1;
+    }
+
+    if (strcmp(request.headers[0].name, "Host") != 0) {
+        printf("[FAIL] Header name mismatch\n");
+        return 1;
+    }
+
+    if (strcmp(request.headers[0].value, "localhost") != 0) {
+        printf("[FAIL] Header value mismatch\n");
+        return 1;
+    }
+
+    printf("[PASS] Parse HTTP headers\n");
+
     const char *invalid_input =
         "GET /hello\r\n";
 
@@ -45,7 +62,7 @@ int main(void) {
         return 1;
     }
 
-    printf("[PASS] Reject invalid HTTP request\n");    
+    printf("[PASS] Reject invalid HTTP request\n");
 
     return 0;
 }

@@ -18,7 +18,75 @@ int http_parse_request(const char *buffer, HttpRequest *request) {
         request->version
     );
 
-    return parsed == 3;
+    if (parsed != 3) {
+        return 0;
+    }
+
+    request->header_count = 0;
+
+    const char *line = strstr(buffer, "\r\n");
+
+    if (line == NULL) {
+        return 1;
+    }
+
+    line += 2;
+
+    while (*line != '\0' && request->header_count < MAX_HEADERS) {
+        if (line[0] == '\r' && line[1] == '\n') {
+            break;
+        }
+
+        const char *line_end = strstr(line, "\r\n");
+
+        if (line_end == NULL) {
+            break;
+        }
+
+        const char *colon = strchr(line, ':');
+
+        if (colon != NULL && colon < line_end) {
+            size_t name_length = colon - line;
+
+            if (name_length >= sizeof(request->headers[0].name)) {
+                name_length = sizeof(request->headers[0].name) - 1;
+            }
+
+            memcpy(
+                request->headers[request->header_count].name,
+                line,
+                name_length
+            );
+
+            request->headers[request->header_count].name[name_length] = '\0';
+
+            const char *value_start = colon + 1;
+
+            while (value_start < line_end && *value_start == ' ') {
+                value_start++;
+            }
+
+            size_t value_length = line_end - value_start;
+
+            if (value_length >= sizeof(request->headers[0].value)) {
+                value_length = sizeof(request->headers[0].value) - 1;
+            }
+
+            memcpy(
+                request->headers[request->header_count].value,
+                value_start,
+                value_length
+            );
+
+            request->headers[request->header_count].value[value_length] = '\0';
+
+            request->header_count++;
+        }
+
+        line = line_end + 2;
+    }
+
+    return 1;
 }
 
 void http_send_text_response(
