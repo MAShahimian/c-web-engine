@@ -44,6 +44,55 @@ int http_parse_request(const char *buffer, HttpRequest *request) {
         request->query[sizeof(request->query) - 1] = '\0';
     }
 
+    request->query_param_count = 0;
+
+    if (request->query[0] != '\0') {
+        char query_copy[sizeof(request->query)];
+
+        strncpy(
+            query_copy,
+            request->query,
+            sizeof(query_copy) - 1
+        );
+
+        query_copy[sizeof(query_copy) - 1] = '\0';
+
+        char *parameter = strtok(query_copy, "&");
+
+        while (
+            parameter != NULL &&
+            request->query_param_count < MAX_QUERY_PARAMS
+        ) {
+            char *equals = strchr(parameter, '=');
+
+            if (equals != NULL) {
+                *equals = '\0';
+
+                strncpy(
+                    request->query_params[request->query_param_count].name,
+                    parameter,
+                    sizeof(request->query_params[0].name) - 1
+                );
+
+                request->query_params[request->query_param_count]
+                    .name[sizeof(request->query_params[0].name) - 1] = '\0';
+
+                strncpy(
+                    request->query_params[request->query_param_count].value,
+                    equals + 1,
+                    sizeof(request->query_params[0].value) - 1
+                );
+
+                request->query_params[request->query_param_count]
+                    .value[sizeof(request->query_params[0].value) - 1] = '\0';
+
+                request->query_param_count++;
+            }
+
+            parameter = strtok(NULL, "&");
+        }
+    }
+
     const char *line = strstr(buffer, "\r\n");
 
     if (line == NULL) {

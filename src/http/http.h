@@ -14,13 +14,24 @@ typedef struct {
     char value[256];
 } HttpHeader;
 
+#define MAX_QUERY_PARAMS 16
+
+typedef struct {
+    char name[64];
+    char value[256];
+} HttpQueryParam;
+
 typedef struct {
     char method[16];
     char path[256];
     char query[512];
     char version[16];
+
     HttpHeader headers[MAX_HEADERS];
     int header_count;
+    
+    HttpQueryParam query_params[MAX_QUERY_PARAMS];
+    int query_param_count;
 } HttpRequest;
 
 typedef void (*HttpHandler)(int client_socket);

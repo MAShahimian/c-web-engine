@@ -208,7 +208,41 @@ int main(void) {
         return 1;
     }
 
-    printf("[PASS] Parse HTTP query string\n");    
+    printf("[PASS] Parse HTTP query string\n");
+
+    const char *query_params_input =
+        "GET /hello?name=Ali&age=30 HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "\r\n";
+
+    result = http_parse_request(query_params_input, &request);
+
+    if (!result) {
+        printf("[FAIL] Parser rejected query parameters\n");
+        return 1;
+    }
+
+    if (request.query_param_count != 2) {
+        printf(
+            "[FAIL] Query parameter count mismatch: expected 2, got %d\n",
+            request.query_param_count
+        );
+        return 1;
+    }
+
+    if (strcmp(request.query_params[0].name, "name") != 0 ||
+        strcmp(request.query_params[0].value, "Ali") != 0) {
+        printf("[FAIL] First query parameter mismatch\n");
+        return 1;
+    }
+
+    if (strcmp(request.query_params[1].name, "age") != 0 ||
+        strcmp(request.query_params[1].value, "30") != 0) {
+        printf("[FAIL] Second query parameter mismatch\n");
+        return 1;
+    }
+
+    printf("[PASS] Parse query parameters\n");    
 
     return 0;
 }
