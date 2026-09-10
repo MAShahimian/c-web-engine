@@ -124,6 +124,30 @@ int main(void) {
 
     printf("[PASS] Lookup HTTP header by name\n");
 
+    const char *host_lowercase = http_get_header(
+        &request,
+        "host"
+    );
+
+    if (host_lowercase == NULL ||
+        strcmp(host_lowercase, "localhost") != 0) {
+        printf("[FAIL] Case-insensitive lookup failed for lowercase header name\n");
+        return 1;
+    }
+
+    const char *host_uppercase = http_get_header(
+        &request,
+        "HOST"
+    );
+
+    if (host_uppercase == NULL ||
+        strcmp(host_uppercase, "localhost") != 0) {
+        printf("[FAIL] Case-insensitive lookup failed for uppercase header name\n");
+        return 1;
+    }
+
+    printf("[PASS] Case-insensitive HTTP header lookup\n");
+
     const char *missing = http_get_header(
         &request,
         "Authorization"

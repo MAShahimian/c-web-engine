@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <strings.h>
 
 int http_parse_request(const char *buffer, HttpRequest *request) {
 
@@ -95,7 +96,7 @@ const char *http_get_header(
     const char *name
 ) {
     for (int i = 0; i < request->header_count; i++) {
-        if (strcmp(request->headers[i].name, name) == 0) {
+        if (strcasecmp(request->headers[i].name, name) == 0) {
             return request->headers[i].value;
         }
     }
