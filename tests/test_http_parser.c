@@ -172,5 +172,19 @@ int main(void) {
 
     printf("[PASS] Reject invalid HTTP request\n");
 
+    const char *invalid_header =
+        "GET /hello HTTP/1.1\r\n"
+        "Host localhost\r\n"
+        "\r\n";
+
+    result = http_parse_request(invalid_header, &request);
+
+    if (result) {
+        printf("[FAIL] Parser accepted header without colon\n");
+        return 1;
+    }
+
+    printf("[PASS] Reject HTTP header without colon\n");
+
     return 0;
 }

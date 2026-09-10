@@ -47,43 +47,49 @@ int http_parse_request(const char *buffer, HttpRequest *request) {
 
         const char *colon = strchr(line, ':');
 
-        if (colon != NULL && colon < line_end) {
-            size_t name_length = colon - line;
-
-            if (name_length >= sizeof(request->headers[0].name)) {
-                name_length = sizeof(request->headers[0].name) - 1;
-            }
-
-            memcpy(
-                request->headers[request->header_count].name,
-                line,
-                name_length
-            );
-
-            request->headers[request->header_count].name[name_length] = '\0';
-
-            const char *value_start = colon + 1;
-
-            while (value_start < line_end && *value_start == ' ') {
-                value_start++;
-            }
-
-            size_t value_length = line_end - value_start;
-
-            if (value_length >= sizeof(request->headers[0].value)) {
-                value_length = sizeof(request->headers[0].value) - 1;
-            }
-
-            memcpy(
-                request->headers[request->header_count].value,
-                value_start,
-                value_length
-            );
-
-            request->headers[request->header_count].value[value_length] = '\0';
-
-            request->header_count++;
+        if (colon == NULL || colon >= line_end) {
+            return 0;
         }
+
+        if (colon == line) {
+            return 0;
+        }
+
+        size_t name_length = colon - line;
+
+        if (name_length >= sizeof(request->headers[0].name)) {
+            name_length = sizeof(request->headers[0].name) - 1;
+        }
+
+        memcpy(
+            request->headers[request->header_count].name,
+            line,
+            name_length
+        );
+
+        request->headers[request->header_count].name[name_length] = '\0';
+
+        const char *value_start = colon + 1;
+
+        while (value_start < line_end && *value_start == ' ') {
+            value_start++;
+        }
+
+        size_t value_length = line_end - value_start;
+
+        if (value_length >= sizeof(request->headers[0].value)) {
+            value_length = sizeof(request->headers[0].value) - 1;
+        }
+
+        memcpy(
+            request->headers[request->header_count].value,
+            value_start,
+            value_length
+        );
+
+        request->headers[request->header_count].value[value_length] = '\0';
+
+        request->header_count++;
 
         line = line_end + 2;
     }
