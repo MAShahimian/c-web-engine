@@ -26,6 +26,24 @@ int http_parse_request(const char *buffer, HttpRequest *request) {
         return 0;
     }
 
+    request->query[0] = '\0';
+
+    char *query_start = strchr(request->path, '?');
+
+    if (query_start != NULL) {
+        *query_start = '\0';
+
+        query_start++;
+
+        strncpy(
+            request->query,
+            query_start,
+            sizeof(request->query) - 1
+        );
+
+        request->query[sizeof(request->query) - 1] = '\0';
+    }
+
     const char *line = strstr(buffer, "\r\n");
 
     if (line == NULL) {

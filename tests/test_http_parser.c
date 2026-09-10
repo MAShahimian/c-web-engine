@@ -186,5 +186,29 @@ int main(void) {
 
     printf("[PASS] Reject HTTP header without colon\n");
 
+    const char *query_input =
+        "GET /hello?name=Ali&age=30 HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "\r\n";
+
+    result = http_parse_request(query_input, &request);
+
+    if (!result) {
+        printf("[FAIL] Parser rejected request with query string\n");
+        return 1;
+    }
+
+    if (strcmp(request.path, "/hello") != 0) {
+        printf("[FAIL] Query request path mismatch\n");
+        return 1;
+    }
+
+    if (strcmp(request.query, "name=Ali&age=30") != 0) {
+        printf("[FAIL] Query string mismatch\n");
+        return 1;
+    }
+
+    printf("[PASS] Parse HTTP query string\n");    
+
     return 0;
 }
