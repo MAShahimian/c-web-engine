@@ -10,7 +10,8 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "../http/http.h"
+#include "../http/http_parser.h"
+#include "../http/http_response.h"
 #include "../router/router.h"
 
 int main(void) {

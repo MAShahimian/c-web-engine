@@ -7,9 +7,11 @@ TEST_HTTP_PARSER = tests/test_http_parser
 
 SOURCES = \
 	src/server/server.c \
-	src/http/http.c \
+	src/http/http_parser.c \
+	src/http/http_query.c \
+	src/http/http_response.c \
 	src/router/router.c
-
+	
 OBJECTS = $(SOURCES:.c=.o)
 
 .PHONY: all clean banner test
@@ -35,9 +37,18 @@ banner:
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET)
 
-$(TEST_HTTP_PARSER): tests/test_http_parser.c src/http/http.c src/http/http.h
-	$(CC) $(CFLAGS) tests/test_http_parser.c src/http/http.c -o $(TEST_HTTP_PARSER)	
-
+$(TEST_HTTP_PARSER): tests/test_http_parser.c \
+	src/http/http_parser.c \
+	src/http/http_parser.h \
+	src/http/http_query.c \
+	src/http/http_query.h \
+	src/http/http.h
+	$(CC) $(CFLAGS) \
+		tests/test_http_parser.c \
+		src/http/http_parser.c \
+		src/http/http_query.c \
+		-o $(TEST_HTTP_PARSER)
+		
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
