@@ -242,7 +242,31 @@ int main(void) {
         return 1;
     }
 
-    printf("[PASS] Parse query parameters\n");    
+    printf("[PASS] Parse query parameters\n");
+
+    const char *name = http_get_query_param(
+        &request,
+        "name"
+    );
+
+    if (name == NULL || strcmp(name, "Ali") != 0) {
+        printf("[FAIL] Query parameter lookup failed\n");
+        return 1;
+    }
+
+    printf("[PASS] Lookup query parameter by name\n");
+
+    const char *missing_param = http_get_query_param(
+        &request,
+        "city"
+    );
+
+    if (missing_param != NULL) {
+        printf("[FAIL] Missing query parameter should return NULL\n");
+        return 1;
+    }
+
+    printf("[PASS] Return NULL for missing query parameter\n");
 
     return 0;
 }

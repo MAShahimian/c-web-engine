@@ -62,4 +62,10 @@ const char *http_get_header(
     const char *name
 );
 
+const char *http_get_query_param(
+    HttpRequest *request,
+    const char *name
+);
+
+
 #endif

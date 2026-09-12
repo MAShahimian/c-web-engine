@@ -177,6 +177,19 @@ const char *http_get_header(
     return NULL;
 }
 
+const char *http_get_query_param(
+    HttpRequest *request,
+    const char *name
+) {
+    for (int i = 0; i < request->query_param_count; i++) {
+        if (strcmp(request->query_params[i].name, name) == 0) {
+            return request->query_params[i].value;
+        }
+    }
+
+    return NULL;
+}
+
 void http_send_text_response(
     int client_socket,
     int status_code,
