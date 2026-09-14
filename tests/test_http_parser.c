@@ -269,29 +269,56 @@ int main(void) {
     printf("[PASS] Return NULL for missing query parameter\n");
 
     const char *encoded_query_input =
-            "GET /hello?name=Mohammad%20Ali&city=Shiraz HTTP/1.1\r\n"
-            "Host: localhost:8080\r\n"
-            "\r\n";
+        "GET /hello?name=Mohammad%20Ali&city=Shiraz HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "\r\n";
 
-        result = http_parse_request(encoded_query_input, &request);
+    result = http_parse_request(encoded_query_input, &request);
 
-        if (!result) {
-            printf("[FAIL] Parser rejected URL-encoded query\n");
-            return 1;
-        }
+    if (!result) {
+        printf("[FAIL] Parser rejected URL-encoded query\n");
+        return 1;
+    }
 
-        const char *encoded_name = http_get_query_param(
-            &request,
-            "name"
-        );
+    const char *encoded_name = http_get_query_param(
+        &request,
+        "name"
+    );
 
-        if (encoded_name == NULL ||
-            strcmp(encoded_name, "Mohammad Ali") != 0) {
-            printf("[FAIL] URL-decoded query parameter mismatch\n");
-            return 1;
-        }
+    if (encoded_name == NULL ||
+        strcmp(encoded_name, "Mohammad Ali") != 0) {
+        printf("[FAIL] URL-decoded query parameter mismatch\n");
+        return 1;
+    }
 
-        printf("[PASS] Decode URL-encoded query parameter\n");
+    printf("[PASS] Decode URL-encoded query parameter\n");
+
+    const char *body_input =
+        "POST /users HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 5\r\n"
+        "\r\n"
+        "Hello";
+
+    result = http_parse_request(body_input, &request);
+
+    if (!result) {
+        printf("[FAIL] Parser rejected request with body\n");
+        return 1;
+    }
+
+    if (request.body_length != 5) {
+        printf("[FAIL] HTTP body length mismatch\n");
+        return 1;
+    }
+
+    if (strcmp(request.body, "Hello") != 0) {
+        printf("[FAIL] HTTP body content mismatch\n");
+        return 1;
+    }
+
+    printf("[PASS] Parse HTTP request body\n");
 
     return 0;
 }

@@ -106,6 +106,30 @@ int http_parse_request(
         line = line_end + 2;
     }
 
+    request->body_length = 0;
+    request->body[0] = '\0';
+
+    const char *body_start = strstr(buffer, "\r\n\r\n");
+
+    if (body_start != NULL) {
+        body_start += 4;
+
+        size_t body_length = strlen(body_start);
+
+        if (body_length >= MAX_BODY_SIZE) {
+            body_length = MAX_BODY_SIZE - 1;
+        }
+
+        memcpy(
+            request->body,
+            body_start,
+            body_length
+        );
+
+        request->body[body_length] = '\0';
+        request->body_length = body_length;
+    }
+
     return 1;
 }
 

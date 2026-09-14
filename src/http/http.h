@@ -4,10 +4,14 @@
  * Description: HTTP data structures and public API.
  */
 
+ #include <stddef.h>
+
 #ifndef HTTP_H
 #define HTTP_H
 
 #define MAX_HEADERS 16
+
+#define MAX_BODY_SIZE 4096
 
 typedef struct {
     char name[64];
@@ -32,6 +36,9 @@ typedef struct {
     
     HttpQueryParam query_params[MAX_QUERY_PARAMS];
     int query_param_count;
+
+    char body[MAX_BODY_SIZE];
+    size_t body_length;
 } HttpRequest;
 
 typedef void (*HttpHandler)(int client_socket);
