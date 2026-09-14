@@ -8,6 +8,14 @@
 
 #include <string.h>
 
+static int hex_to_value(char c);
+
+static void url_decode(
+    char *destination,
+    size_t destination_size,
+    const char *source
+);
+
 void http_parse_query(
     HttpRequest *request
 ) {
@@ -56,23 +64,17 @@ void http_parse_query(
         if (equals != NULL) {
             *equals = '\0';
 
-            strncpy(
+            url_decode(
                 request->query_params[request->query_param_count].name,
-                parameter,
-                sizeof(request->query_params[0].name) - 1
+                sizeof(request->query_params[0].name),
+                parameter
             );
 
-            request->query_params[request->query_param_count]
-                .name[sizeof(request->query_params[0].name) - 1] = '\0';
-
-            strncpy(
+            url_decode(
                 request->query_params[request->query_param_count].value,
-                equals + 1,
-                sizeof(request->query_params[0].value) - 1
+                sizeof(request->query_params[0].value),
+                equals + 1
             );
-
-            request->query_params[request->query_param_count]
-                .value[sizeof(request->query_params[0].value) - 1] = '\0';
 
             request->query_param_count++;
         }
@@ -92,4 +94,61 @@ const char *http_get_query_param(
     }
 
     return NULL;
+}
+
+static int hex_to_value(char c) {
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    }
+
+    if (c >= 'A' && c <= 'F') {
+        return c - 'A' + 10;
+    }
+
+    if (c >= 'a' && c <= 'f') {
+        return c - 'a' + 10;
+    }
+
+    return -1;
+}
+
+static void url_decode(
+    char *destination,
+    size_t destination_size,
+    const char *source
+) {
+    size_t destination_index = 0;
+
+    for (
+        size_t source_index = 0;
+        source[source_index] != '\0' &&
+        destination_index < destination_size - 1;
+        source_index++
+    ) {
+        if (
+            source[source_index] == '%' &&
+            source[source_index + 1] != '\0' &&
+            source[source_index + 2] != '\0'
+        ) {
+            int high = hex_to_value(source[source_index + 1]);
+            int low = hex_to_value(source[source_index + 2]);
+
+            if (high >= 0 && low >= 0) {
+                destination[destination_index++] =
+                    (char)((high << 4) | low);
+
+                source_index += 2;
+                continue;
+            }
+        }
+
+        if (source[source_index] == '+') {
+            destination[destination_index++] = ' ';
+            continue;
+        }
+
+        destination[destination_index++] = source[source_index];
+    }
+
+    destination[destination_index] = '\0';
 }
