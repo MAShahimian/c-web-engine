@@ -10,6 +10,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <stdlib.h>
+
+static int validate_content_length(
+    HttpRequest *request,
+    size_t actual_body_length
+);
 
 int http_parse_request(
     const char *buffer,
@@ -120,6 +126,10 @@ int http_parse_request(
             body_length = MAX_BODY_SIZE - 1;
         }
 
+        if (!validate_content_length(request, body_length)) {
+            return 0;
+        }
+
         memcpy(
             request->body,
             body_start,
@@ -144,4 +154,35 @@ const char *http_get_header(
     }
 
     return NULL;
+}
+
+static int validate_content_length(
+    HttpRequest *request,
+    size_t actual_body_length
+) {
+    const char *content_length =
+        http_get_header(request, "Content-Length");
+
+    if (content_length == NULL) {
+        return 1;
+    }
+
+    char *end_pointer;
+
+    long expected_length = strtol(
+        content_length,
+        &end_pointer,
+        10
+    );
+
+    if (
+        content_length == end_pointer ||
+        *end_pointer != '\0' ||
+        expected_length < 0 ||
+        (size_t)expected_length >= MAX_BODY_SIZE
+    ) {
+        return 0;
+    }
+
+    return (size_t)expected_length == actual_body_length;
 }

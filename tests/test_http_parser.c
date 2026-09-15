@@ -320,5 +320,50 @@ int main(void) {
 
     printf("[PASS] Parse HTTP request body\n");
 
+    const char *valid_content_length_input =
+        "POST /users HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 5\r\n"
+        "\r\n"
+        "Hello";
+
+    result = http_parse_request(
+        valid_content_length_input,
+        &request
+    );
+
+    if (!result) {
+        printf("[FAIL] Valid Content-Length was rejected\n");
+        return 1;
+    }
+
+    if (request.body_length != 5) {
+        printf("[FAIL] Valid Content-Length body length mismatch\n");
+        return 1;
+    }
+
+    printf("[PASS] Validate matching Content-Length\n");
+
+    const char *invalid_content_length_input =
+        "POST /users HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 10\r\n"
+        "\r\n"
+        "Hello";
+
+    result = http_parse_request(
+        invalid_content_length_input,
+        &request
+    );
+
+    if (result) {
+        printf("[FAIL] Mismatched Content-Length was accepted\n");
+        return 1;
+    }
+
+    printf("[PASS] Reject mismatched Content-Length\n");    
+
     return 0;
 }
