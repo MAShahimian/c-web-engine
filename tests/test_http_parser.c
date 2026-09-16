@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include "../src/http/http_receiver.h"
 
 #include "../src/http/http.h"
 
@@ -363,7 +366,292 @@ int main(void) {
         return 1;
     }
 
-    printf("[PASS] Reject mismatched Content-Length\n");    
+    printf("[PASS] Reject mismatched Content-Length\n");
+
+    /*
+    * Test receiving a complete HTTP request body.
+    *
+    * The request is intentionally split into multiple chunks
+    * to simulate multiple TCP recv() calls.
+    */
+
+    const char *request_part_1 =
+        "POST /users HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 11\r\n"
+        "\r\n"
+        "Hello";
+
+    const char *request_part_2 =
+        " World";
+
+    char complete_request[1024];
+
+    size_t part_1_length = strlen(request_part_1);
+    size_t part_2_length = strlen(request_part_2);
+
+    memcpy(
+        complete_request,
+        request_part_1,
+        part_1_length
+    );
+
+    memcpy(
+        complete_request + part_1_length,
+        request_part_2,
+        part_2_length
+    );
+
+    complete_request[
+        part_1_length + part_2_length
+    ] = '\0';
+
+    result = http_parse_request(
+        complete_request,
+        &request
+    );
+
+    if (!result) {
+        printf("[FAIL] Parser rejected request received in multiple chunks\n");
+        return 1;
+    }
+
+    if (request.body_length != 11) {
+        printf("[FAIL] Complete body length mismatch\n");
+        return 1;
+    }
+
+    if (strcmp(request.body, "Hello World") != 0) {
+        printf("[FAIL] Complete body content mismatch\n");
+        return 1;
+    }
+
+    printf("[PASS] Parse complete body received in multiple chunks\n");
+
+    /*
+    * Test that an incomplete request body is not treated
+    * as a complete HTTP request.
+    */
+
+    const char *incomplete_request =
+        "POST /users HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 11\r\n"
+        "\r\n"
+        "Hello";
+
+    result = http_parse_request(
+        incomplete_request,
+        &request
+    );
+
+    if (result) {
+        printf("[FAIL] Incomplete HTTP body was accepted as complete\n");
+        return 1;
+    }
+
+    printf("[PASS] Reject incomplete HTTP body\n");
+
+    /*
+    * Test receiving an HTTP request from multiple TCP chunks.
+    */
+
+    int sockets[2];
+
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets) == -1) {
+        perror("socketpair");
+        return 1;
+    }
+
+    const char *socket_request_part_1 =
+        "POST /users HTTP/1.1\r\n"
+        "Host: localhost:8080\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 11\r\n"
+        "\r\n"
+        "Hello";
+
+    const char *socket_request_part_2 =
+        " World";
+
+    if (send(
+            sockets[0],
+            socket_request_part_1,
+            strlen(socket_request_part_1),
+            0
+        ) == -1) {
+        perror("send");
+        close(sockets[0]);
+        close(sockets[1]);
+        return 1;
+    }
+
+    if (send(
+            sockets[0],
+            socket_request_part_2,
+            strlen(socket_request_part_2),
+            0
+        ) == -1) {
+        perror("send");
+        close(sockets[0]);
+        close(sockets[1]);
+        return 1;
+    }
+
+    char receive_buffer[1024];
+
+    int received_length = http_receive_request(
+        sockets[1],
+        receive_buffer,
+        sizeof(receive_buffer)
+    );
+
+    if (received_length == -1) {
+        printf("[FAIL] Failed to receive complete HTTP request\n");
+        close(sockets[0]);
+        close(sockets[1]);
+        return 1;
+    }
+
+    receive_buffer[received_length] = '\0';
+
+    if (strcmp(
+            receive_buffer,
+            "POST /users HTTP/1.1\r\n"
+            "Host: localhost:8080\r\n"
+            "Content-Type: text/plain\r\n"
+            "Content-Length: 11\r\n"
+            "\r\n"
+            "Hello World"
+        ) != 0) {
+
+        printf("[FAIL] Received HTTP request does not match expected data\n");
+
+        close(sockets[0]);
+        close(sockets[1]);
+        return 1;
+    }
+
+    printf("[PASS] Receive complete HTTP request from multiple TCP chunks\n");
+
+    close(sockets[0]);
+    close(sockets[1]);
+
+    /*
+    * Test receiving HTTP request until Content-Length body is complete.
+    */
+
+    int body_sockets[2];
+
+    if (socketpair(
+            AF_UNIX,
+            SOCK_STREAM,
+            0,
+            body_sockets
+        ) == -1) {
+
+        perror("socketpair");
+        return 1;
+    }
+
+
+    const char *body_request_header =
+        "POST /message HTTP/1.1\r\n"
+        "Host: localhost\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: 11\r\n"
+        "\r\n";
+
+
+    const char *body_part_1 =
+        "Hello";
+
+
+    const char *body_part_2 =
+        " World";
+
+
+    send(
+        body_sockets[0],
+        body_request_header,
+        strlen(body_request_header),
+        0
+    );
+
+
+    send(
+        body_sockets[0],
+        body_part_1,
+        strlen(body_part_1),
+        0
+    );
+
+
+    send(
+        body_sockets[0],
+        body_part_2,
+        strlen(body_part_2),
+        0
+    );
+
+
+    char body_receive_buffer[1024];
+
+
+    int body_received_length = http_receive_request(
+        body_sockets[1],
+        body_receive_buffer,
+        sizeof(body_receive_buffer)
+    );
+
+
+    if (body_received_length <= 0) {
+
+        printf(
+            "[FAIL] Failed to receive request body\n"
+        );
+
+        close(body_sockets[0]);
+        close(body_sockets[1]);
+
+        return 1;
+    }
+
+
+    body_receive_buffer[body_received_length] = '\0';
+
+
+    if (strcmp(
+            body_receive_buffer,
+            "POST /message HTTP/1.1\r\n"
+            "Host: localhost\r\n"
+            "Content-Type: text/plain\r\n"
+            "Content-Length: 11\r\n"
+            "\r\n"
+            "Hello World"
+        ) != 0) {
+
+
+        printf(
+            "[FAIL] Received request body mismatch\n"
+        );
+
+        close(body_sockets[0]);
+        close(body_sockets[1]);
+
+        return 1;
+    }
+
+
+    printf(
+        "[PASS] Receive body according to Content-Length\n"
+    );
+
+
+    close(body_sockets[0]);
+    close(body_sockets[1]);    
 
     return 0;
 }
