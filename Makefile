@@ -11,7 +11,8 @@ SOURCES = \
     src/http/http_query.c \
     src/http/http_response.c \
     src/http/http_receiver.c \
-    src/router/router.c
+    src/router/router.c \
+	src/http/http_error.c
 		
 OBJECTS = $(SOURCES:.c=.o)
 
@@ -45,12 +46,15 @@ $(TEST_HTTP_PARSER): tests/test_http_parser.c \
     src/http/http_query.h \
     src/http/http_receiver.c \
     src/http/http_receiver.h \
-    src/http/http.h
+    src/http/http.h \
+	src/http/http_error.c \
+    src/http/http_error.h
 	$(CC) $(CFLAGS) \
 		tests/test_http_parser.c \
 		src/http/http_parser.c \
 		src/http/http_query.c \
 		src/http/http_receiver.c \
+		src/http/http_error.c \
 		-o $(TEST_HTTP_PARSER)
 
 %.o: %.c

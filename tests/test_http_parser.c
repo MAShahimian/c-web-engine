@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "../src/http/http_receiver.h"
+#include "../src/http/http_error.h"
 
 #include "../src/http/http.h"
 
@@ -651,7 +652,51 @@ int main(void) {
 
 
     close(body_sockets[0]);
-    close(body_sockets[1]);    
+    close(body_sockets[1]);
+
+    /*
+    * Test generating HTTP 400 Bad Request response.
+    */
+
+    char error_buffer[1024];
+
+
+    int response_length = http_send_error_response(
+        error_buffer,
+        sizeof(error_buffer),
+        400,
+        "Bad Request"
+    );
+
+
+    if (response_length <= 0) {
+
+        printf(
+            "[FAIL] Failed to generate error response\n"
+        );
+
+        return 1;
+    }
+
+
+    if (
+        strstr(
+            error_buffer,
+            "HTTP/1.1 400 Bad Request"
+        ) == NULL
+    ) {
+
+        printf(
+            "[FAIL] Invalid HTTP error status\n"
+        );
+
+        return 1;
+    }
+
+
+    printf(
+        "[PASS] Generate HTTP 400 response\n"
+    );
 
     return 0;
 }
