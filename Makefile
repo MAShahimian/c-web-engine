@@ -7,16 +7,9 @@ TEST_HTTP_PARSER = tests/test_http_parser
 TEST_RESPONSE = tests/test_response
 TEST_JSON = tests/test_json
 
-SOURCES = \
-    src/server/server.c \
-    src/http/http_parser.c \
-    src/http/http_query.c \
-    src/http/http_response.c \
-    src/http/http_receiver.c \
-    src/router/router.c \
-	src/http/http_error.c
-		
-OBJECTS = $(SOURCES:.c=.o)
+SOURCES := $(shell find src -name "*.c")
+
+OBJECTS := $(SOURCES:.c=.o)
 
 .PHONY: all clean banner test
 
@@ -79,10 +72,10 @@ $(TEST_JSON): tests/test_json.c \
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) $(TARGET) $(TEST_HTTP_PARSER)
+	rm -f $(OBJECTS) $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE) $(TEST_JSON)
 	
 test: $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE) $(TEST_JSON)
-	@./tests/test_http_parser
-	./$(TEST_RESPONSE)
-	./$(TEST_JSON)
+	@./$(TEST_HTTP_PARSER)
+	@./$(TEST_RESPONSE)
+	@./$(TEST_JSON)
 	@./tests/test_server.sh
