@@ -40,3 +40,28 @@ void http_send_text_response(
         0
     );
 }
+
+int http_send_json_response(
+    char *buffer,
+    size_t buffer_size,
+    int status_code,
+    const char *json_body
+) {
+
+    int length = snprintf(
+        buffer,
+        buffer_size,
+        "HTTP/1.1 %d OK\r\n"
+        "Content-Type: application/json\r\n"
+        "Content-Length: %zu\r\n"
+        "Connection: close\r\n"
+        "\r\n"
+        "%s",
+        status_code,
+        strlen(json_body),
+        json_body
+    );
+
+
+    return length;
+}
