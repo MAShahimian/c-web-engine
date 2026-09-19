@@ -5,6 +5,7 @@ CFLAGS = -Wall -Wextra -std=c11
 TARGET = c-web-engine
 TEST_HTTP_PARSER = tests/test_http_parser
 TEST_RESPONSE = tests/test_response
+TEST_JSON = tests/test_json
 
 SOURCES = \
     src/server/server.c \
@@ -66,13 +67,22 @@ $(TEST_RESPONSE): tests/test_response.c \
 	    src/http/http_response.c \
 	    -o $(TEST_RESPONSE)
 
+$(TEST_JSON): tests/test_json.c \
+    src/http/http_json.c \
+    src/http/http_json.h
+	$(CC) $(CFLAGS) \
+	    tests/test_json.c \
+	    src/http/http_json.c \
+	    -o $(TEST_JSON)
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJECTS) $(TARGET) $(TEST_HTTP_PARSER)
 	
-test: $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE)
+test: $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE) $(TEST_JSON)
 	@./tests/test_http_parser
 	./$(TEST_RESPONSE)
+	./$(TEST_JSON)
 	@./tests/test_server.sh
