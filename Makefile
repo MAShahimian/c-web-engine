@@ -6,6 +6,7 @@ TARGET = c-web-engine
 TEST_HTTP_PARSER = tests/test_http_parser
 TEST_RESPONSE = tests/test_response
 TEST_JSON = tests/test_json
+TEST_CONTENT = tests/test_content
 
 SOURCES := $(shell find src -name "*.c")
 
@@ -68,14 +69,34 @@ $(TEST_JSON): tests/test_json.c \
 	    src/http/http_json.c \
 	    -o $(TEST_JSON)
 
+$(TEST_CONTENT): tests/test_content.c \
+    src/http/http_content.c \
+    src/http/http_content.h \
+    src/http/http_parser.c \
+    src/http/http_parser.h \
+    src/http/http_query.c \
+    src/http/http_query.h
+	$(CC) $(CFLAGS) \
+	    tests/test_content.c \
+	    src/http/http_content.c \
+	    src/http/http_parser.c \
+	    src/http/http_query.c \
+	    -o $(TEST_CONTENT)
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE) $(TEST_JSON)
+	rm -f $(OBJECTS) $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE) $(TEST_JSON) $(TEST_CONTENT)
 	
-test: $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE) $(TEST_JSON)
+test: $(TARGET) \
+      $(TEST_HTTP_PARSER) \
+      $(TEST_RESPONSE) \
+      $(TEST_JSON) \
+      $(TEST_CONTENT)
+	  
 	@./$(TEST_HTTP_PARSER)
 	@./$(TEST_RESPONSE)
 	@./$(TEST_JSON)
+	@./$(TEST_CONTENT)
 	@./tests/test_server.sh
