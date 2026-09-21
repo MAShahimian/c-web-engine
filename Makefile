@@ -7,6 +7,7 @@ TEST_HTTP_PARSER = tests/test_http_parser
 TEST_RESPONSE = tests/test_response
 TEST_JSON = tests/test_json
 TEST_CONTENT = tests/test_content
+TEST_JSON_REQUEST = tests/test_json_request
 
 SOURCES := $(shell find src -name "*.c")
 
@@ -83,20 +84,42 @@ $(TEST_CONTENT): tests/test_content.c \
 	    src/http/http_query.c \
 	    -o $(TEST_CONTENT)
 
+$(TEST_JSON_REQUEST): tests/test_json_request.c \
+    src/http/http_receiver.c \
+    src/http/http_receiver.h \
+    src/http/http_parser.c \
+    src/http/http_parser.h \
+    src/http/http_query.c \
+    src/http/http_query.h \
+    src/http/http_content.c \
+    src/http/http_content.h \
+    src/http/http_json.c \
+    src/http/http_json.h
+	$(CC) $(CFLAGS) \
+	    tests/test_json_request.c \
+	    src/http/http_receiver.c \
+	    src/http/http_parser.c \
+	    src/http/http_query.c \
+	    src/http/http_content.c \
+	    src/http/http_json.c \
+	    -o $(TEST_JSON_REQUEST)
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE) $(TEST_JSON) $(TEST_CONTENT)
+	rm -f $(OBJECTS) $(TARGET) $(TEST_HTTP_PARSER) $(TEST_RESPONSE) $(TEST_JSON) $(TEST_CONTENT) $(TEST_JSON_REQUEST)
 	
 test: $(TARGET) \
       $(TEST_HTTP_PARSER) \
       $(TEST_RESPONSE) \
       $(TEST_JSON) \
-      $(TEST_CONTENT)
+      $(TEST_CONTENT) \
+	  $(TEST_JSON_REQUEST)
 	  
 	@./$(TEST_HTTP_PARSER)
 	@./$(TEST_RESPONSE)
 	@./$(TEST_JSON)
 	@./$(TEST_CONTENT)
+	@./$(TEST_JSON_REQUEST)
 	@./tests/test_server.sh
